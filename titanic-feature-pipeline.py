@@ -37,17 +37,21 @@ titanic_df.loc[titanic_df['Age'].isnull() & mask, 'Age'] = avg_filler
 mask = (titanic_df['Pclass'] == 3) & (titanic_df['Sex'] == 'female')
 avg_filler = titanic_df.loc[mask, 'Age'].mean()
 titanic_df.loc[titanic_df['Age'].isnull() & mask, 'Age'] = avg_filler
-#print(titanic_df.isnull().sum())
 
 titanic_df.drop("Cabin", inplace=True, axis=1)
+titanic_df.drop("Name", inplace=True, axis=1)
+titanic_df.drop("PassengerId", inplace=True, axis=1)
 titanic_df["Embarked"].fillna(value="U", inplace=True)
 
 # Categorical data converted to numerical
-titanic_df["Embarked"].replace(["U","S","C","Q"],[0,1,2,3], inplace=True)
+titanic_df["Embarked"].replace(["S","C","Q","U"],[0,1,2,3], inplace=True)
 titanic_df["Sex"].replace(["male","female"],[1,2], inplace=True)
 
 titanic_df["Ticket"] = titanic_df["Ticket"].str.extract(r'(\d+)', expand=False)
 titanic_df["Ticket"] = pd.to_numeric(titanic_df['Ticket'])
+titanic_df["Ticket"].fillna(value=0, inplace=True)
+
+#print(titanic_df.isnull().sum())
 
 
 #print(titanic_df["Ticket"])
@@ -56,7 +60,7 @@ titanic_df["Ticket"] = pd.to_numeric(titanic_df['Ticket'])
 titanic_fg = fs.get_or_create_feature_group(
     name="titanic_modal",
     version=1,
-    primary_key=["PassengerId"],
+    primary_key=["Pclass","Sex","Age","SibSp","Parch","Ticket","Fare","Embarked"],
     description="Titanic dataset")
 titanic_fg.insert(titanic_df, write_options={"wait_for_job" : False})
 
